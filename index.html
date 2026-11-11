@@ -141,8 +141,27 @@ input[type="text"]:focus-visible, textarea:focus-visible { outline: 2px solid va
 .intro .line { font-family: var(--font-display); font-size: clamp(24px, 7vw, 30px); line-height: 1.25; margin: 0 0 8px; opacity: 0; animation: fadein 1.6s ease forwards; }
 .intro .line.l1 { animation-delay: 1.1s; }
 .intro .line.l2 { animation-delay: 3s; color: var(--glow); font-style: italic; }
-.intro .btn { align-self: flex-start; margin-top: 32px; opacity: 0; animation: fadein 1.4s 4.4s ease forwards, btnglow 3.2s 6s ease-in-out infinite; }
-@keyframes btnglow { 0%, 100% { box-shadow: 0 0 0 0 rgba(233,185,139,0); } 50% { box-shadow: 0 0 26px 2px rgba(233,185,139,.45); } }
+.seal-btn {
+  position: relative; align-self: flex-start; margin-top: 36px; width: 76px; height: 76px;
+  border: 0; padding: 0; border-radius: 50%; cursor: pointer;
+  background: radial-gradient(circle at 35% 30%, #f6d3a8, #e9b98b 45%, #b9854f);
+  box-shadow: 0 0 30px rgba(233,185,139,.5), inset 0 -4px 8px rgba(0,0,0,.2);
+  opacity: 0; animation: fadein 1.4s 4.2s ease forwards, sealpulse 3.2s 5.6s ease-in-out infinite;
+}
+.seal-btn::before { content: ""; position: absolute; inset: 12px; border-radius: 50%; border: 1px solid rgba(26,19,32,.35); }
+.seal-btn::after {
+  content: ""; position: absolute; inset: 24px; background: rgba(26,19,32,.5);
+  clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%);
+}
+.seal-btn:focus-visible { outline: 2px solid var(--text); outline-offset: 5px; }
+.seal-btn.crack { opacity: 1; animation: crack .65s ease forwards; }
+.seal-cap { margin: 16px 0 0; font-size: 13px; letter-spacing: .18em; text-transform: uppercase; color: var(--muted); opacity: 0; animation: fadein 1.4s 4.8s ease forwards; }
+@keyframes sealpulse { 0%, 100% { box-shadow: 0 0 22px rgba(233,185,139,.4), inset 0 -4px 8px rgba(0,0,0,.2); } 50% { box-shadow: 0 0 46px 6px rgba(233,185,139,.7), inset 0 -4px 8px rgba(0,0,0,.2); } }
+@keyframes crack {
+  0% { transform: scale(1); opacity: 1; }
+  35% { transform: scale(1.18) rotate(8deg); opacity: 1; }
+  100% { transform: scale(3); opacity: 0; box-shadow: 0 0 110px 40px rgba(233,185,139,0); }
+}
 @keyframes fadein { to { opacity: 1; } }
 
 .postcard {
@@ -260,7 +279,7 @@ input[type="text"]:focus, textarea:focus { border-color: var(--glow); box-shadow
   .postcard.fold { animation: none; }
   .glow, .step, .eyebrow::after { animation: none; }
   .eyebrow::after { width: 56px; }
-  .intro .line, .intro .btn { animation: none; opacity: 1; }
+  .intro .line, .seal-btn, .seal-cap { animation: none; opacity: 1; }
 }
 </style>
 
@@ -298,7 +317,8 @@ input[type="text"]:focus, textarea:focus { border-color: var(--glow); box-shadow
       { v: 'Нежный', sub: 'Мягкий свет, воздух, тихие цвета', sw: ['#f3dfd8', '#d9b8b0', '#b9a2b8'] },
       { v: 'Дерзкий', sub: 'Контраст, прямой взгляд, характер', sw: ['#120b0e', '#7a1228', '#e0603f'] },
       { v: 'Классика', sub: 'Как кадр из старого фильма: тёплый свет, строгие линии, спокойный взгляд', sw: ['#efe6d4', '#3a2f2a', '#a67c52'] },
-      { v: 'Минимализм', sub: 'Светлый чистый фон, простая одежда, весь кадр про лицо и свет', sw: ['#f4f4f1', '#c9c7c2', '#2b2b2b'] }
+      { v: 'Минимализм', sub: 'Светлый чистый фон, простая одежда, весь кадр про лицо и свет', sw: ['#f4f4f1', '#c9c7c2', '#2b2b2b'] },
+      { v: 'Чувственный', sub: 'Полумрак, шёлк, тёплый свет на коже. Намёк вместо слов', sw: ['#2a1219', '#8c3b4b', '#d9a28a'] }
     ] },
     moods: { key: 'moods', kind: 'chip', max: 3, label: 'Настроение', options: [
       { v: 'уютно' }, { v: 'спокойно' }, { v: 'романтично' }, { v: 'загадочно' },
@@ -329,7 +349,7 @@ input[type="text"]:focus, textarea:focus { border-color: var(--glow); box-shadow
 
   var STEPS = [
     { id: 'intro' },
-    { id: 'style', title: 'Какой должна быть съёмка?', lead: 'Выбери один стиль или два, если хочется смешать.',
+    { id: 'style', title: 'Какой ты хочешь увидеть себя?', lead: 'Выбери один стиль или смешай два. Всё остальное я возьму на себя.',
       groups: ['style'], need: function () { return state.style.length ? '' : 'Выбери хотя бы один стиль.'; } },
     { id: 'mood', title: 'Настроение и цвета', lead: 'Что тебе близко сейчас. Выбирай по ощущению, до трёх вариантов в каждом.',
       groups: ['moods', 'colors'] },
@@ -431,14 +451,14 @@ input[type="text"]:focus, textarea:focus { border-color: var(--glow); box-shadow
       return '<p class="done">Запечатано.</p><p class="lead" style="margin:0">Письмо летит…</p>';
     }
     if (sendState === 'ok') {
-      return '<p class="done">Письмо улетело.</p><p class="lead" style="margin:0">Дальше моя забота.</p>';
+      return '<p class="done">Письмо улетело.</p><p class="lead" style="margin:0">Тайный поклонник прочтёт его первым.</p>';
     }
     var intro = sendState === 'fail'
-      ? 'Письмо не долетело, такое бывает. Отдай его мне сама: откроется Telegram, выбери чат со мной и нажми «Отправить».'
-      : 'Осталось отдать письмо мне. Откроется Telegram: выбери чат со мной и нажми «Отправить».';
+      ? 'Письмо не долетело, такое бывает. Передай его сама: откроется Telegram, выбери чат, где пришла ссылка, и нажми «Отправить».'
+      : 'Осталось передать письмо. Откроется Telegram: выбери чат, где пришла ссылка, и нажми «Отправить».';
     return '<p class="done">Запечатано.</p>' +
       '<p class="lead" style="margin:0">' + intro + '</p>' +
-      '<a class="btn" href="' + esc(href) + '" target="_blank" rel="noopener">Отдать Илье</a>' +
+      '<a class="btn" href="' + esc(href) + '" target="_blank" rel="noopener">Передать письмо</a>' +
       '<button type="button" class="btn ghost" data-act="copy">Скопировать выбор</button>' +
       '<p class="status" id="status" role="status" aria-live="polite"></p>' +
       '<div class="fallback" id="fallback" hidden><textarea id="fbtext" readonly></textarea></div>' +
@@ -481,10 +501,12 @@ input[type="text"]:focus, textarea:focus { border-color: var(--glow); box-shadow
     var html = '';
     if (st.id === 'intro') {
       html = '<section class="step intro">' +
+        '<div class="eyebrow">Письмо без подписи</div>' +
         '<h1 class="title">Катя.</h1>' +
-        '<p class="line l1">Я кое-что придумал для тебя.</p>' +
-        '<p class="line l2">Но без тебя это не получится.</p>' +
-        '<button type="button" class="btn" data-act="next">Открыть</button>' +
+        '<p class="line l1">Это письмо нашло тебя само.</p>' +
+        '<p class="line l2">Тот, кто его написал, мечтает подарить тебе особенный день.</p>' +
+        '<button type="button" class="seal-btn" data-act="open" aria-label="Сломать печать"></button>' +
+        '<p class="seal-cap">Сломай печать</p>' +
         '</section>';
     } else if (st.id === 'card') {
       var rows = rowsData().map(function (p, i) {
@@ -494,11 +516,11 @@ input[type="text"]:focus, textarea:focus { border-color: var(--glow); box-shadow
       var href = 'https://t.me/share/url?url=&text=' + encodeURIComponent(messageText());
       html = '<section class="step">' +
         '<article class="postcard">' +
-        '<div class="eyebrow">27 ноября · с днём рождения</div>' +
+        '<div class="eyebrow">Письмо без подписи</div>' +
         '<h1 class="who">Катя</h1>' +
-        '<p class="sub2">Твоя фотосессия. Выбор сделан.</p>' +
+        '<p class="sub2">Твоя съёмка почти готова.</p>' +
         '<dl class="rows">' + rows + '</dl>' +
-        '<p class="sign" style="--sd:' + sd + '">Остальное моя забота.<br>Илья</p>' +
+        '<p class="sign" style="--sd:' + sd + '">Остальное моя забота.<br>Твой тайный поклонник</p>' +
         '</article>' +
         '<div class="actions">' +
         '<button type="button" class="btn" data-act="seal">Запечатать письмо</button>' +
@@ -597,7 +619,7 @@ input[type="text"]:focus, textarea:focus { border-color: var(--glow); box-shadow
     box.hidden = false;
     ta.focus();
     ta.select();
-    flash('Выдели текст ниже, скопируй и отправь мне.');
+    flash('Выдели текст ниже, скопируй и отправь в чат, где пришла ссылка.');
   }
   function seal() {
     var pc = app.querySelector('.postcard');
@@ -617,10 +639,18 @@ input[type="text"]:focus, textarea:focus { border-color: var(--glow); box-shadow
       render();
     }
   }
+  function openSeal(btn) {
+    if (busy || btn.classList.contains('crack')) return;
+    var reduce = false;
+    try { reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) {}
+    if (reduce) { go(1); return; }
+    btn.classList.add('crack');
+    setTimeout(function () { go(1); }, 600);
+  }
   function copyChoice() {
     try {
       navigator.clipboard.writeText(messageText()).then(function () {
-        flash('Скопировано. Вставь в чат со мной.');
+        flash('Скопировано. Вставь в чат, где пришла ссылка.');
       }, showFallback);
     } catch (e) { showFallback(); }
   }
@@ -635,6 +665,7 @@ input[type="text"]:focus, textarea:focus { border-color: var(--glow); box-shadow
     else if (a === 'back') go(cur - 1);
     else if (a === 'edit' || a === 'unseal') { sealed = false; go(1); }
     else if (a === 'seal') seal();
+    else if (a === 'open') openSeal(act);
     else if (a === 'copy') copyChoice();
   });
   app.addEventListener('input', function (e) {
